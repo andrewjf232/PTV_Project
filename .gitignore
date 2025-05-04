@@ -1,0 +1,8 @@
+# Ignore Python virtual environment
+.venv/
+
+# Ignore sensitive credential files
+.securityInfo/
+
+#Ignore Environment Credentials
+.env 

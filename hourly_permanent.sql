@@ -1,0 +1,1 @@
+SELECT * FROM road_traffic_counts_hourly_permanent WHERE {date_condition}
