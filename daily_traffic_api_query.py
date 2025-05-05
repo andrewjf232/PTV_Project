@@ -13,7 +13,7 @@ load_dotenv()
 
 # configuration
 API_KEY = os.getenv('TFNSW_API_TOKEN')
-S3_BUCKET_NAME = 'ptv-pipeline-raw-data-ajf-24-4-25'
+S3_BUCKET_NAME = 'trafficsnswbucket'
 
 #paths within s3
 STATION_REF_S3_KEY = 'raw/traffic_volume/station_reference/station_reference.csv'
@@ -46,7 +46,9 @@ def load_sql_query(filename):
             sql_query = f.read().strip() # .strip() removes leading/trailing whitespace/newlines
 
         # Optional: Print the loaded query to confirm
-        print(f"Loaded SQL query from {filename}:")
+        print(f"Loaded SQL query from :{filename}")
+        print(f"With the query {sql_query}")
+        return sql_query
         #print(sql_query)
     except FileNotFoundError:
         print(f"Error: SQL file '{filename}' not found in the current directory.")
@@ -65,23 +67,8 @@ def load_sql_query(filename):
 
 
 
-#print(f"Saving to: {output_filename}")
-# not saing locally anymore.
-
-
-# --- Initialise s3 client --- 
-# ensure AWS credentials are configured via environment variables
-# shared credential file (~/.aws/credentials), or IAM role.
-try:
-    s3_client = boto3.client('s3')
-    print("s3 client initialised successfully")
-except Exception as e:
-    print(f"Error initializing S3 client: {e}")
-
-
-
 # --- Fetch Request From API ---
-def fetch_data_from_Api(sql_query, api_key):
+def fetch_data_from_Api(sql_query, API_KEY):
     headers = {
     'Authorization': f'apikey {API_KEY}',
     'Accept': f'application/{OUTPUT_FORMAT}'                      
@@ -237,12 +224,12 @@ def backfill_last_n_days(n_days, s3_client, API_KEY, sql_template):
 
 
 
+# switch to control whether or not to run backfill.
 
-    
-    
+
 
 # --- Main Execution Logic---
-def main(run_backfill = False): # added logic to control backfilling.
+def main(run_backfill = True): # added logic to control backfilling.
     print("Starting daily TfNSW data fetch and upload process...")
 
     # Validate API key
@@ -263,6 +250,7 @@ def main(run_backfill = False): # added logic to control backfilling.
     # Check if it already exists to avoid re-uploading
     exists = check_s3_object_exists(s3_client, S3_BUCKET_NAME, STATION_REF_S3_KEY)
     if exists == False:
+        print(f"Station reference data does not exist in s3...")
         station_sql = load_sql_query(STATION_REF_SQL_FILENAME)
         #load the sql query into the station_sql variable.
         if station_sql:
@@ -287,21 +275,33 @@ def main(run_backfill = False): # added logic to control backfilling.
         # Load the base hourly SQL query
     hourly_sql = load_sql_query(HOURLY_PERM_SQL_FILENAME)
     if hourly_sql:
-        # if hourly sql working then fetch
-        try: 
-            hourly_perm_data = fetch_data_from_Api(hourly_sql, API_KEY)
-             # returns the response.text
-            print(f"Reponse text successful and stored in {hourly_perm_data}")
-            if hourly_perm_data:
-                check_hourly_perm_exists = check_s3_object_exists(s3_client,S3_BUCKET_NAME,API_KEY)
-                if check_s3_object_exists == False:
-                    upload_hourly_perm_data = upload_to_s3(s3_client,S3_BUCKET_NAME,API_KEY, data_body=hourly_perm_data)
-                else:
-                    print(f"s3 Object already exists")
-            else:
-                print(f"getting response text from API was not successfull")
-        except:
-            print(f"API fetch failed")
+        print(f"Successfully loaded sql query... \nFetching upload for yesterday")   
+    else:
+        print(f"Unable to load sql query. Please check the sql file: {HOURLY_PERM_SQL_FILENAME}")
+        exit()
+    yesterday_upload = fetch_and_upload_for_single_date(yesterday ,s3_client, API_KEY, hourly_sql)
+    if yesterday_upload:
+            print(f"Successfully uploaded hourly traffic data for day: {yesterday}")
+
+    
+    # --- Optional Backfill ---
+    if run_backfill:
+        backfill_last_n_days(BACKFILL_DAYS, s3_client, API_KEY, hourly_sql)
+    else:
+        print("\n--- Backfill Skipped (run_backfill=False) ---")
 
 
 
+if __name__ == "__main__":
+    # --- Control Backfill ---
+    # Set run_backfill_flag to True ONLY when you want to run the historical backfill.
+    # After running it once successfully, set it back to False for normal daily operation.
+    run_backfill_flag = True # <-- SET TO True TO RUN BACKFILL, False FOR DAILY RUN
+
+    # Calls the main() function, which was defined above.
+    # This starts the actual execution of the script's logic.
+    main(run_backfill=run_backfill_flag)
+
+    # --- Testing LoadSQL function ---
+    #load_sql_query(HOURLY_PERM_SQL_FILENAME) 
+    # testing both filenames passed the test.

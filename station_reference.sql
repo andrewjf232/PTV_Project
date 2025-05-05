@@ -1,1 +1,1 @@
-SELECT * FROM road_traffic_counts_station_reference 
+SELECT * FROM road_traffic_counts_station_reference
