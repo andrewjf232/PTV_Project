@@ -1,15 +1,15 @@
-# NSW Traffic Congestion Data ELT - Data Engineering 
-**Project Title:** NSW Traffic Congestion between 2024 - 2025
+# Serverless Traffic Data Pipeline (AWS/Python)
+**Project Title:** AWS Serverless ETL: Building a Monthly NSW Traffic Data Lake for Analytical Insights
 
-**Project Goal:** To extract and analyse traffic data from the TfNSW API, then loading and transformation the data completely in AWS. The output will be 12 months of traffic data in NSW loaded in an Amazon S3 bucket, and transformed in using Amazon SageMaker and Amazon Athena.
+**Project Goal:** To design and implement a fully severless, scalable ELT pipeline on AWS for ingesting, transforming and analysing historical traffic congestion data in from the TfNSW API. This pipeline delivers query-ready data into a S3 data lake, which enable actionable insights for urban planning and traffic management needs.
 
 **In simple terms, this project outlines:**
 
 - ✅  **Where the data comes from** (TfNSW API). (DONE)
 - ✅  **How it's initially collected** (Python scripts, Boto3 AWS SDK for Python). (DONE)
 - ✅ **Where it's stored** (S3 Cloud Storage). (DONE)
-- 🟧 **How it's processed and transformed** (Athena, SageMaker). (IN PROGRESS)
-- **How the whole process is automated and controlled** (Airflow triggers).
+- 🟧 **How it's processed and transformed** (Athena). (IN PROGRESS)
+- **How the whole process is automated and controlled** (Lambda, cloudwatch events).
 
   **Project Details:** The data collected will be recording traffic density for each hour of the day in 24 hour time. It will be collecting this data for each traffic station (a location where the NSW government records traffic) located in NSW.
 This information is stored in an S3 bucket using Hive-style partioning for readability and also organisational purposes.
