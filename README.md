@@ -36,7 +36,7 @@ Data extraction and loading are fully automated and managed by AWS serverless se
 ### Transform
 <img width="1172" alt="Screenshot 2025-05-25 at 7 31 02 pm" src="https://github.com/user-attachments/assets/592c1150-9760-4af2-bf1e-e34d81d65fdf" />
 
-* **AWS Glue Crawlers** automatically infer the schema from the raw `.csv` files in S3 and register them as tables in the **AWS Glue Data Catalog**. This creates a **centralized, managed metadata repository**, making the raw data immediately discoverable and queryable by other services.
+* **AWS Glue Crawlers** automatically infer the schema from the raw `.csv` files in S3 and register them as tables in the **AWS Glue Data Catalog**. This creates a **centralised, managed metadata repository**, making the raw data immediately discoverable and queryable by other services.
 * **Amazon Athena**, a serverless query engine, then performs **SQL-based transformations** directly on these cataloged tables in S3. This **schema-on-read** approach provides immense flexibility.
 * Post-transformation, the refined data is written back to a separate S3 location, often in **optimized columnar formats like Apache Parquet or ORC**. This significantly **improves query performance and reduces storage costs** for subsequent analytical workloads.
 
@@ -67,3 +67,9 @@ For robust operations, **CloudWatch Logs** provide comprehensive **logging and m
 ## Key Learnings & Challenges:
 
 Through this project, I gained practical experience optimizing **Lambda for cold starts**, meticulously crafting **least-privilege IAM policies** to troubleshoot `403 Forbidden` errors, and ensuring **data integrity** by implementing idempotency checks in Lambda. I also mastered **deployment and packaging** for Python dependencies, effectively utilized AWS Glue Crawlers for **schema discovery and management**, and experienced firsthand the **cost benefits** of a serverless, pay-per-use architecture across all services.
+
+---
+
+## Athena Transformations
+
+What athena trasnformations we did. Why we needed to do them.
