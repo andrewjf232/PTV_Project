@@ -1,7 +1,5 @@
 # Serverless Traffic Data Pipeline (AWS/Python)
 
-## Project Title: Building a Monthly NSW Traffic Data Lake for Analytical Insights
-
 ## Project Goal:
 
 This project focuses on designing and implementing a **fully serverless, scalable ELT (Extract, Load, Transform) pipeline** on AWS. The core objective is to ingest historical traffic congestion data from the TfNSW API, transform it, and deliver **query-ready data** into an Amazon S3-based data lake. This setup enables the generation of **actionable insights** crucial for urban planning and effective traffic management.
