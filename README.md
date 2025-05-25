@@ -1,48 +1,71 @@
 # Serverless Traffic Data Pipeline (AWS/Python)
-**Project Title:** AWS Serverless ETL: Building a Monthly NSW Traffic Data Lake for Analytical Insights
 
-**Project Goal:** To design and implement a fully severless, scalable ELT pipeline on AWS for ingesting, transforming and analysing historical traffic congestion data in from the TfNSW API. This pipeline delivers query-ready data into a S3 data lake, which enable actionable insights for urban planning and traffic management needs.
+## Project Title: Building a Monthly NSW Traffic Data Lake for Analytical Insights
 
-**In simple terms, this project outlines:**
+## Project Goal:
 
-- ✅  **Where the data comes from** (TfNSW API). (DONE)
-- ✅  **How it's initially collected** (Python scripts, Boto3 AWS SDK for Python). (DONE)
-- ✅ **Where it's stored** (S3 Cloud Storage). (DONE)
-- 🟧 **How it's processed and transformed** (Athena). (IN PROGRESS)
-- **How the whole process is automated and controlled** (Lambda, cloudwatch events).
+This project focuses on designing and implementing a **fully serverless, scalable ELT (Extract, Load, Transform) pipeline** on AWS. The core objective is to ingest historical traffic congestion data from the TfNSW API, transform it, and deliver **query-ready data** into an Amazon S3-based data lake. This setup enables the generation of **actionable insights** crucial for urban planning and effective traffic management.
 
-  **Project Details:** The data collected will be recording traffic density for each hour of the day in 24 hour time. It will be collecting this data for each traffic station (a location where the NSW government records traffic) located in NSW.
-This information is stored in an S3 bucket using Hive-style partioning for readability and also organisational purposes.
+In simple terms, this project outlines:
+
+-   ✅ **Where the data comes from** (TfNSW API).
+-   ✅ **How it's initially collected** (Python scripts, AWS Lambda, CloudWatch Events).
+-   ✅ **Where it's stored** (Amazon S3 Data Lake).
+-   ✅ **How it's processed and transformed** (AWS Glue, Amazon Athena).
+-   ✅ **How the entire process is automated and controlled** (AWS Lambda, CloudWatch Events, AWS IAM, CloudWatch Logs).
+
+---
+
+## Project Details:
+
+The pipeline collects hourly traffic density data for every traffic station across NSW. This raw information is stored in an **Amazon S3 bucket**, organized using **Hive-style partitioning** (`/year=YYYY/month=MM/day=DD/`) for optimal readability, organization, and query performance.
+
 <img width="807" alt="Screenshot 2025-05-05 at 3 06 08 pm" src="https://github.com/user-attachments/assets/3f55f85e-2f94-422d-bd3e-2760479f26b5" />
 
-<h1>Process</h1>
-<h3>Extract</h3>
-Using python, data regarding NSW's traffic will be collected form the TfNSW traffic API over two endpoints. First, a backfill of the last year, and then ongoing monthly batch jobs.
-<h3>Load</h3>
-This Data will be hive partioned for visbility and organisational purposes (/year=YYYY/month=MM/day=DD/), and stored in an S3 bucket (as .csv files)
-<h3>Transform</h3>
-Athena will be used inside SageMaker (with CTAS or INSERT INTO) to read the raw data from S3, apply SQL-based transformations. Post-Transformed data will be written back to a different S3 location, often in an optimized format like Parquet or ORC.
+---
 
-<h3>Webapp displaying transport data in NSW using [NiceGUI](https://nicegui.io/#installation)</h3>
-This webapp will display transport data in heatmaps with a legend on the side. Heatmap will cover all of NSW Stations. As traffic increases, temperatures will become warmer. 
+## Process: A Fully Serverless ELT Pipeline
 
+### Extract & Load
 
-<h1>MVP To Do</h1>
-- Monthly Batch jobs script Separate Python file.
-- Reformat Original script to remove daily batch runs.
-- Athena transformations via sagemaker.
- - Join hourly_permanent table with station_reference table
- - Identify hourly traffice data with corresponding transport station
- - Top 3 stations with most peak hour traffic (7am - 10am & 3pm - 6pm)
-- Apache Airflow (orchestrator)
- - Set up DAGs 
-  (Example: 
-  Task 1: Run Python script for API extraction. 
-  Task 2 (depends on Task 1): Load data to S3. 
-  Task 3 (depends on Task 2): Trigger Athena transformation via SageMaker.)
- - Schedule monthly batch jobs
- - Error handling if API is unavailable.
- 
+Data extraction and loading are fully automated and managed by AWS serverless services. On the first day of each month, an **AWS CloudWatch Event** triggers an **AWS Lambda function**. This function executes a Python script that makes GET requests to the TfNSW API.
+<img width="926" alt="Screenshot 2025-05-25 at 7 24 25 pm" src="https://github.com/user-attachments/assets/4509f95a-e190-4f83-97b4-ef7e63e1b843" />
 
-<h1>v2.0 To Do</h1>
-- Experiment with Sagemaker AI Analysis and ML capabilities. Out of scope for MVP.
+* The Lambda function ensures that data is not duplicated on re-runs by checking for existing S3 objects before uploading.
+* Responses are stored as `.csv` files in the designated S3 bucket, using **Hive-style partitioning**.
+* The pipeline includes an initial **backfill** for historical data and then continues with **ongoing monthly batch jobs** for continuous data ingestion.
+
+### Transform
+<img width="1172" alt="Screenshot 2025-05-25 at 7 31 02 pm" src="https://github.com/user-attachments/assets/592c1150-9760-4af2-bf1e-e34d81d65fdf" />
+
+* **AWS Glue Crawlers** automatically infer the schema from the raw `.csv` files in S3 and register them as tables in the **AWS Glue Data Catalog**. This creates a **centralized, managed metadata repository**, making the raw data immediately discoverable and queryable by other services.
+* **Amazon Athena**, a serverless query engine, then performs **SQL-based transformations** directly on these cataloged tables in S3. This **schema-on-read** approach provides immense flexibility.
+* Post-transformation, the refined data is written back to a separate S3 location, often in **optimized columnar formats like Apache Parquet or ORC**. This significantly **improves query performance and reduces storage costs** for subsequent analytical workloads.
+
+---
+
+## Architecture Decision: Why Serverless, Why Data Lake?
+
+Choosing a serverless architecture with a data lake approach was a deliberate decision, offering significant advantages for this project:
+
+### Why Serverless Architecture over Traditional Options?
+
+We chose a serverless architecture due to its **reduced operational overhead**, as it eliminated the need to provision or manage servers, allowing us to focus purely on data logic. Its **inherent scalability and elasticity** ensure components like Lambda and S3 automatically handle varying data volumes and loads on demand. This approach is highly **cost-effective** through a pay-per-use model, making it economical for monthly batch jobs. Furthermore, serverless enabled **faster development and deployment**, and facilitated **event-driven automation** via CloudWatch Events, efficiently processing data only when scheduled.
+
+### Why AWS Athena / Glue over a Redshift Data Warehouse?
+
+Instead of a Redshift data warehouse, we opted for **AWS Glue and Athena** for our data lake. This choice was driven by **cost-efficiency**, leveraging Athena's pay-per-query model which is ideal for our intermittent, monthly batch processing. The **schema-on-read flexibility** offered by Glue's Data Catalog and Athena is crucial for handling evolving data structures, while the **separation of compute (Athena) and storage (S3)** provides independent scalability and optimized costs. This approach successfully establishes a **modern data lake foundation**, ensuring raw data remains accessible for diverse analytical tools.
+
+---
+
+## Fully Managed & Robust Architecture:
+
+This pipeline is built entirely on **AWS's fully managed and serverless services**, minimizing operational overhead and maximizing resilience.
+
+For robust operations, **CloudWatch Logs** provide comprehensive **logging and monitoring**, offering insights from application-level details and runtime errors to detailed failure payloads via Lambda Destinations and automatic Lambda metrics for performance. Meanwhile, **AWS IAM** is fundamental for securing the pipeline, strictly managing permissions for each service and adhering to the principle of **least-privilege access** to ensure data security and compliance.
+
+---
+
+## Key Learnings & Challenges:
+
+Through this project, I gained practical experience optimizing **Lambda for cold starts**, meticulously crafting **least-privilege IAM policies** to troubleshoot `403 Forbidden` errors, and ensuring **data integrity** by implementing idempotency checks in Lambda. I also mastered **deployment and packaging** for Python dependencies, effectively utilized AWS Glue Crawlers for **schema discovery and management**, and experienced firsthand the **cost benefits** of a serverless, pay-per-use architecture across all services.
