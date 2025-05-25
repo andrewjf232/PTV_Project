@@ -54,19 +54,6 @@ We chose a serverless architecture due to its **reduced operational overhead**, 
 
 Instead of a Redshift data warehouse, we opted for **AWS Glue and Athena** for our data lake. This choice was driven by **cost-efficiency**, leveraging Athena's pay-per-query model which is ideal for our intermittent, monthly batch processing. The **schema-on-read flexibility** offered by Glue's Data Catalog and Athena is crucial for handling evolving data structures, while the **separation of compute (Athena) and storage (S3)** provides independent scalability and optimized costs. This approach successfully establishes a **modern data lake foundation**, ensuring raw data remains accessible for diverse analytical tools.
 
----
-
-## Fully Managed & Robust Architecture:
-
-This pipeline is built entirely on **AWS's fully managed and serverless services**, minimizing operational overhead and maximizing resilience.
-
-For robust operations, **CloudWatch Logs** provide comprehensive **logging and monitoring**, offering insights from application-level details and runtime errors to detailed failure payloads via Lambda Destinations and automatic Lambda metrics for performance. Meanwhile, **AWS IAM** is fundamental for securing the pipeline, strictly managing permissions for each service and adhering to the principle of **least-privilege access** to ensure data security and compliance.
-
----
-
-## Key Learnings & Challenges:
-
-Through this project, I gained practical experience optimizing **Lambda for cold starts**, meticulously crafting **least-privilege IAM policies** to troubleshoot `403 Forbidden` errors, and ensuring **data integrity** by implementing idempotency checks in Lambda. I also mastered **deployment and packaging** for Python dependencies, effectively utilized AWS Glue Crawlers for **schema discovery and management**, and experienced firsthand the **cost benefits** of a serverless, pay-per-use architecture across all services.
 
 ---
 
