@@ -1,6 +1,6 @@
 CREATE TABLE processed_hourly_traffic
 WITH (
-    format = 'PARQUET',
+    format = 'CSV',
     external_location = 's3://trafficsnswbucket/processed/traffic_volume/hourly_processed/',
     partitioned_by = ARRAY['year', 'month']
 ) AS
