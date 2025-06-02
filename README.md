@@ -69,3 +69,7 @@ I was running into this issue because AWS Glue was inferring the month column fr
 <img width="1021" alt="Screenshot 2025-06-02 at 3 11 02 pm" src="https://github.com/user-attachments/assets/e2d8e3c9-e460-48ce-82ca-6cc928cb03c0" />
 <ul>Resolution:</ul> AWS Glue had auto assigned it type BIGINT and so I had to reassign the partition as a STRING.
 When querying now, AWS Athena is looking at the table paritioning as its schema, instead of inferring from the files.
+
+
+**Incorrectly defined hourly_permanent table**
+
