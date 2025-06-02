@@ -59,4 +59,13 @@ Instead of a Redshift data warehouse, we opted for **AWS Glue and Athena** for o
 
 ## Athena Transformations
 
-What athena trasnformations we did. Why we needed to do them.
+A simple JOIN to connect our reference table 'station_reference' containing our station name and other station information, to the actual transport data corresponding to that station in 'hourly_permanent' table.
+<img width="958" alt="Screenshot 2025-06-02 at 3 09 07 pm" src="https://github.com/user-attachments/assets/f570b53a-3a1a-4854-8f94-fa08e9d25545" />
+
+## Issues Encountered
+
+**The partition metadata was incorrect**
+I was running into this issue because AWS Glue was inferring the month column from the CSV data itself (as type BIGINT), rather than recognizing month as a partition key derived from the S3 path (/month=02/), which should be a STRING.
+<img width="1021" alt="Screenshot 2025-06-02 at 3 11 02 pm" src="https://github.com/user-attachments/assets/e2d8e3c9-e460-48ce-82ca-6cc928cb03c0" />
+AWS Glue had auto assigned it type BIGINT and so I had to reassign the partition as a STRING.
+When querying now, AWS Athena is looking at the table paritioning as its schema, instead of inferring from the files.
