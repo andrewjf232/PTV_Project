@@ -72,4 +72,6 @@ When querying now, AWS Athena is looking at the table paritioning as its schema,
 
 
 **Incorrectly defined hourly_permanent table**
+![image](https://github.com/user-attachments/assets/573c7719-20ca-429e-8301-525e240aa20f)
+Query 
 
