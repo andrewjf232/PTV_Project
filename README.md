@@ -66,6 +66,15 @@ A simple JOIN to connect our reference table 'station_reference' containing our 
 <img width="958" alt="Screenshot 2025-06-02 at 3 09 07 pm" src="https://github.com/user-attachments/assets/f570b53a-3a1a-4854-8f94-fa08e9d25545" />
 
 ### Transformation 2: Unpivoting the hourly_permanent table
+This unpivots the hourlydata so that traffice volume is the same column instead of separate columns. 
+i.e. columns "hour_00, hour_01, hour_02 ..." -> column "volume"
+#### Before:
+<img width="913" alt="Screenshot 2025-06-05 at 12 23 27 pm" src="https://github.com/user-attachments/assets/883291a1-5025-4061-9ec4-5576bbcdb73a" />
+
+#### After:
+<img width="1036" alt="Screenshot 2025-06-05 at 12 37 34 pm" src="https://github.com/user-attachments/assets/487db126-ee99-430a-a408-1f9df878c134" />
+
+---
 
 ## Issues Encountered
 
