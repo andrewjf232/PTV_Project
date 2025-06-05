@@ -48,11 +48,11 @@ Choosing a serverless architecture with a data lake approach was a deliberate de
 
 ### Why Serverless Architecture over Traditional Options?
 
-We chose a serverless architecture due to its **reduced operational overhead**, as it eliminated the need to provision or manage servers, allowing us to focus purely on data logic. Its **inherent scalability and elasticity** ensure components like Lambda and S3 automatically handle varying data volumes and loads on demand. This approach is highly **cost-effective** through a pay-per-use model, making it economical for monthly batch jobs. Furthermore, serverless enabled **faster development and deployment**, and facilitated **event-driven automation** via CloudWatch Events, efficiently processing data only when scheduled.
+I chose a serverless architecture due to its **reduced operational overhead**, as it eliminated the need to provision or manage servers, allowing us to focus purely on data logic. It was also **cost-effective** through a pay-per-use model. Furthermore, serverless enabled **faster development and deployment**, and allowed for **event-driven automation** via CloudWatch Events.
 
 ### Why AWS Athena / Glue over a Redshift Data Warehouse?
 
-Instead of a Redshift data warehouse, we opted for **AWS Glue and Athena** for our data lake. This choice was driven by **cost-efficiency**, leveraging Athena's pay-per-query model which is ideal for our intermittent, monthly batch processing. The **schema-on-read flexibility** offered by Glue's Data Catalog and Athena is crucial for handling evolving data structures, while the **separation of compute (Athena) and storage (S3)** provides independent scalability and optimized costs. This approach successfully establishes a **modern data lake foundation**, ensuring raw data remains accessible for diverse analytical tools.
+Instead of a Redshift data warehouse, I chose **AWS Glue and Athena** for our data lake. This choice was driven by **cost-efficiency**, leveraging Athena's pay-per-query model. The **schema-crawling flexibility** offered by Glue's Data Catalog and Athena is crucial for handling evolving data structures. This approach successfully establishes a **modern data lake foundation**, ensuring raw data remains accessible for diverse analytical tools.
 
 
 ---
@@ -62,7 +62,7 @@ Instead of a Redshift data warehouse, we opted for **AWS Glue and Athena** for o
 ### Transformation 1: Joining the station_reference table and hourly_reference tables
 
 
-A simple JOIN to connect our reference table 'station_reference' containing our station name and other station information, to the actual transport data corresponding to that station in 'hourly_permanent' table.
+A simple JOIN to connect our reference table 'station_reference' containing our station name and other station information, to the actual transport data corresponding to that station in 'hourly_permanent' table. This is essential to translate station_key into the actual name, and details of the station (suburb, road classification, geographical co-ordinates, etc)
 <img width="958" alt="Screenshot 2025-06-02 at 3 09 07 pm" src="https://github.com/user-attachments/assets/f570b53a-3a1a-4854-8f94-fa08e9d25545" />
 
 ### Transformation 2: Unpivoting the hourly_permanent table
@@ -72,7 +72,9 @@ i.e. columns "hour_00, hour_01, hour_02 ..." -> column "volume"
 <img width="913" alt="Screenshot 2025-06-05 at 12 23 27 pm" src="https://github.com/user-attachments/assets/883291a1-5025-4061-9ec4-5576bbcdb73a" />
 
 #### After:
-<img width="1036" alt="Screenshot 2025-06-05 at 12 37 34 pm" src="https://github.com/user-attachments/assets/487db126-ee99-430a-a408-1f9df878c134" />
+Here you can see that as the time in the day passes from 0:00am -> 10:00am on Beecroft Road in Sydney on 02-01-2025, the traffic volume increases steadily. 
+<img width="1022" alt="Screenshot 2025-06-05 at 12 48 02 pm" src="https://github.com/user-attachments/assets/ac1b8ea8-baf0-4d48-822a-2a862b46e5b0" />
+Note: "Volume" is not the total amount of cars passing through. It is a standardised measurement TfNSW provides which allows for a consistent comparison across roads. Actual car counts can be quiet large.
 
 ---
 
@@ -85,7 +87,7 @@ I encountered an issue where **AWS Glue was incorrectly inferring the `month` co
 <img width="1021" alt="Screenshot 2025-06-02 at 3 11 02 pm" src="https://github.com/user-attachments/assets/e2d8e3c9-e460-48ce-82ca-6cc928cb03c0" />
 
 **Resolution:**
-AWS Glue had auto-assigned the `month` partition a `BIGINT` type, so I had to **reassign the partition as a `STRING`**. After this change, AWS Athena now correctly uses the table partitioning as its schema, rather than inferring from the files.
+AWS Glue had auto-assigned the `month` partition a `BIGINT` type. I renamed the `month` & `year` (type `BIGINT`) columns to `month_data_col` and `year_data_col` and kept separate `month` and `year` (type `string(paritioned)`) columns. This was to avoid duplication of column names, while also helping athena identify which column to keep as the reference to the partitioned key. I had to keep the `BIGINT` columns and not delete them, because when I trid deleting them, it let to issue 2.
 
 ---
 
@@ -96,4 +98,18 @@ The query in `unpivoted_hourly_perm.sql` resulted in some columns not showing da
 <img width="1047" alt="Screenshot 2025-06-05 at 12 17 16 pm" src="https://github.com/user-attachments/assets/70dc0007-b691-4d08-8d8a-6b527a89dc50" />
 
 **Resolution:**
-I **redefined the schema in my Glue table** to ensure it was mapped correctly and accurately representing the underlying data in the correct order.
+I **redefined the schema in my Glue table** to ensure it was mapped correctly and accurately representing the underlying data in the correct order. See Issue 1 resolution.
+
+---
+
+## For the Data Analysts:
+<img width="794" alt="Screenshot 2025-06-05 at 1 02 52 pm" src="https://github.com/user-attachments/assets/ecc917c3-299b-489d-82f5-a326eff1f826" />
+
+This project transforms raw hourly traffic data, preparing it for powerful analytics. By unpivoting hourly counts and enriching with station details, we create a flexible dataset ideal for:
+
+### Potential Use Cases:
+
+* **Traffic Pattern Analysis:** Understand hourly, daily, and seasonal traffic trends for infrastructure planning.
+* **Anomaly Detection:** Identify unusual traffic events for incident response or sensor monitoring.
+* **Public Holiday Impact:** Quantify how holidays affect traffic volumes.
+
