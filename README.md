@@ -64,14 +64,18 @@ A simple JOIN to connect our reference table 'station_reference' containing our 
 
 ## Issues Encountered
 
+<h3>Issue 1</h3>
 **The partition metadata was incorrect**
 I was running into this issue because AWS Glue was inferring the month column from the CSV data itself (as type BIGINT), rather than recognizing month as a partition key derived from the S3 path (/month=02/), which should be a STRING.
 <img width="1021" alt="Screenshot 2025-06-02 at 3 11 02 pm" src="https://github.com/user-attachments/assets/e2d8e3c9-e460-48ce-82ca-6cc928cb03c0" />
-<ul>Resolution:</ul> AWS Glue had auto assigned it type BIGINT and so I had to reassign the partition as a STRING.
+**Resolution:**
+AWS Glue had auto assigned it type BIGINT and so I had to reassign the partition as a STRING.
 When querying now, AWS Athena is looking at the table paritioning as its schema, instead of inferring from the files.
 
-
+<h3>Issue 2</h3>
 **Incorrectly defined hourly_permanent table**
-![image](https://github.com/user-attachments/assets/573c7719-20ca-429e-8301-525e240aa20f)
-Query 
-
+Query in unpivoted_hourly_perm.sql resulted in some columns not showing data, or showing incorrect data. For example, "day_of_week" column is showing '2025' for every result in the rows. It should be showing a number between 1 - 7.
+This meant that the Glue table defined by our crawler is interpretting the underlying CSVs in S3 incorrectly.
+**Resolution**
+<img width="1047" alt="Screenshot 2025-06-05 at 12 17 16 pm" src="https://github.com/user-attachments/assets/70dc0007-b691-4d08-8d8a-6b527a89dc50" />
+Redefine the schema in my Glue table to ensure that it was mapped correctly and representing underlying data in correct order.
