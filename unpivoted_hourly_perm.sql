@@ -1,32 +1,199 @@
-CREATE TABLE processed_hourly_traffic
-WITH (
-    format = 'CSV',
-    external_location = 's3://trafficsnswbucket/processed/traffic_volume/hourly_processed/',
-    partitioned_by = ARRAY['year', 'month']
-) AS
+-- This unpivots the hourlydata so that traffice volume is the same column instead of separate columns. 
+-- i.e. columns "hour_00, hour_01, hour_02 ..." -> column "volume"
+
+WITH hourly_data AS (
 SELECT
-    hp.station_key,
-    hp.traffic_direction_seq,
-    hp.cardinal_direction_seq,
-    hp.classification_seq,
-    hp.day_of_week,
-    hp.public_holiday,
-    hp.school_holiday,
-    CAST(t.hour_of_day_str AS INT) AS hour_of_day,
-    t.traffic_count,
-    hp.year,
-    hp.month
-FROM
-    hourly_permanent hp
-CROSS JOIN UNNEST(
-    -- Create a MAP where keys are hour strings and values are traffic counts
-    MAP(
-        ARRAY['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11',
-              '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'],
-        ARRAY[hp.hour_00, hp.hour_01, hp.hour_02, hp.hour_03, hp.hour_04, hp.hour_05,
-              hp.hour_06, hp.hour_07, hp.hour_08, hp.hour_09, hp.hour_10, hp.hour_11,
-              hp.hour_12, hp.hour_13, hp.hour_14, hp.hour_15, hp.hour_16, hp.hour_17,
-              hp.hour_18, hp.hour_19, hp.hour_20, hp.hour_21, hp.hour_22, hp.hour_23]
-    )
-) AS t (hour_of_day_str, traffic_count) -- Unnesting a MAP produces two columns: key and value
-WHERE t.traffic_count IS NOT NULL;
+    station_key, date, public_holiday, day_of_week,
+    '00' AS hour,
+    hour_00 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '01' AS hour,
+    hour_01 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '02' AS hour,
+    hour_02 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '03' AS hour,
+    hour_03 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '04' AS hour,
+    hour_04 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '05' AS hour,
+    hour_05 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '06' AS hour,
+    hour_06 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '07' AS hour,
+    hour_07 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '08' AS hour,
+    hour_08 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '09' AS hour,
+    hour_09 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '10' AS hour,
+    hour_10 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '11' AS hour,
+    hour_11 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '12' AS hour,
+    hour_12 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '13' AS hour,
+    hour_13 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '14' AS hour,
+    hour_14 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '15' AS hour,
+    hour_15 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '16' AS hour,
+    hour_16 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '17' AS hour,
+    hour_17 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '18' AS hour,
+    hour_18 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '19' AS hour,
+    hour_19 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '20' AS hour,
+    hour_20 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '21' AS hour,
+    hour_21 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '22' AS hour,
+    hour_22 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+UNION ALL
+
+SELECT
+    station_key, date, public_holiday, day_of_week,
+    '23' AS hour,
+    hour_23 AS volume
+FROM awsdatacatalog.newdatabase.hourly_permanent
+WHERE year = '2025' AND month = '01' AND day BETWEEN '01' AND '31'
+)
+
+SELECT * 
+FROM hourly_data 
+LIMIT 100
