@@ -40,6 +40,10 @@ Data extraction and loading are fully automated and managed by AWS serverless se
 * **Amazon Athena**, a serverless query engine, then performs **SQL-based transformations** directly on these cataloged tables in S3. This **schema-on-read** approach provides immense flexibility.
 * Post-transformation, the refined data is written back to a separate S3 location, often in **optimized columnar formats like Apache Parquet or ORC**. This significantly **improves query performance and reduces storage costs** for subsequent analytical workloads.
 
+### Logging (AWS Cloudwatch)
+AWS Lambda automatically sends through logging information that is printed in the console to Cloudwatch. Cloudwatch tracks the logs and also if any errors have been raised. Here you can see that the ETL function ran smoothly without any errors.
+<img width="1440" alt="Screenshot 2025-06-10 at 3 58 04 pm" src="https://github.com/user-attachments/assets/9caeb613-2ceb-476c-85c1-4fea3ff96074" />
+
 ---
 
 ## Architecture Decision: Why Serverless, Why Data Lake?
